@@ -1,0 +1,23 @@
+{
+  "name": "mmm-pilotwx",
+  "version": "1.0.0",
+  "description": "bottom bar weather for pilots",
+  "main": "MMM-PilotWX.js",
+  "dependencies": {
+    "xml2js": "^0.4.17"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mykle1/MMM-PilotWX.git"
+  },
+  "author": "mykle1",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mykle1/MMM-PilotWX/issues"
+  },
+  "homepage": "https://github.com/mykle1/MMM-PilotWX#readme"
+}
