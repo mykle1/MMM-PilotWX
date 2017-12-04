@@ -36,8 +36,9 @@ Color any way you like. Make it your own.
 		config: {
 			ICAO: "KJFK,EGLL,UUDD,EDDT,RJAA,ZBAA,LFPG,LIRF", // 8 INTL ICAO's
 			colorCode: "Alternative", // Standard or Alternative
-			mode: "Static",           // Static List or Rotating one by one
+			mode: "Static",           // Static (List) or Rotating (one by one)
 			sym: "@",                 // @ or / (Separator for Wind speed and direction)
+			measure: "SM",            // SM or KM (KM converted from SM data)
 			maxWidth: "100%",         // 100% for mode: Rotating, approx 300px for mode: Static
 			useHeader: false,
 			header: "",

@@ -13,6 +13,7 @@ Module.register("MMM-PilotWX", {
 		colorCode: "Standard", // Standard or Alternative color coding
 		mode: "Static",        // Static or Rotating display
 		sym: "@",
+		measure: "KM",         // SM or KM (KM converted from SM data) 
 		maxWidth: "100%",      // 100% for mode: Rotating, approx 300px for mode: Static
 		useHeader: false,
 		header: "",
@@ -121,6 +122,13 @@ Module.register("MMM-PilotWX", {
         top.classList.add("list-row");
 		
 		var sym = this.config.sym;
+		var measure = this.config.measure;
+		
+	if (this.config.measure != "KM" ){
+		var convert = Math.round(WISP.visibility_statute_mi) + measure + " &nbsp &nbsp ";
+	} else {
+		var convert = Math.round(WISP.visibility_statute_mi * 1.609344) + measure + " &nbsp &nbsp "
+	}
 		
         var synopsis = document.createElement("div");
         synopsis.classList.add("small", "bright", "bottom_bar");
@@ -129,7 +137,7 @@ Module.register("MMM-PilotWX", {
 			+ WISP.station_id + " &nbsp &nbsp "
 			+ WISP.wind_dir_degrees + sym
 			+ WISP.wind_speed_kt + "kt" + " &nbsp  &nbsp "
-			+ Math.round(WISP.visibility_statute_mi) + "SM" + " &nbsp &nbsp "
+			+ convert // var for KM or SM //
 			+ WISP.sky_condition[0]["$"].sky_cover
 			+ WISP.sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp &nbsp "
 			+ Math.round(WISP.temp_c) + "/"
@@ -447,6 +455,31 @@ Module.register("MMM-PilotWX", {
 		top.appendChild(station);
 		
 		var sym = this.config.sym;
+		var measure = this.config.measure;
+		
+		// conversion from Statute Miles(SM)(data) to Kilometers(KM)
+		// 1 statute mile = 1.609344km
+		// Rounded
+		
+	if (this.config.measure != "KM"){
+		var convert0 = Math.round(WISP[0].visibility_statute_mi) + measure + " &nbsp ";
+		var convert1 = Math.round(WISP[1].visibility_statute_mi) + measure + " &nbsp ";
+		var convert2 = Math.round(WISP[2].visibility_statute_mi) + measure + " &nbsp ";
+		var convert3 = Math.round(WISP[3].visibility_statute_mi) + measure + " &nbsp ";
+		var convert4 = Math.round(WISP[4].visibility_statute_mi) + measure + " &nbsp ";
+		var convert5 = Math.round(WISP[5].visibility_statute_mi) + measure + " &nbsp ";
+		var convert6 = Math.round(WISP[6].visibility_statute_mi) + measure + " &nbsp ";
+		var convert7 = Math.round(WISP[7].visibility_statute_mi) + measure + " &nbsp ";
+	} else {
+		var convert0 = Math.round(WISP[0].visibility_statute_mi * 1.609344) + measure + " &nbsp ";
+		var convert1 = Math.round(WISP[1].visibility_statute_mi * 1.609344) + measure + " &nbsp ";
+		var convert2 = Math.round(WISP[2].visibility_statute_mi * 1.609344) + measure + " &nbsp ";
+		var convert3 = Math.round(WISP[3].visibility_statute_mi * 1.609344) + measure + " &nbsp ";
+		var convert4 = Math.round(WISP[4].visibility_statute_mi * 1.609344) + measure + " &nbsp ";
+		var convert5 = Math.round(WISP[5].visibility_statute_mi * 1.609344) + measure + " &nbsp ";
+		var convert6 = Math.round(WISP[6].visibility_statute_mi * 1.609344) + measure + " &nbsp ";
+		var convert7 = Math.round(WISP[7].visibility_statute_mi * 1.609344) + measure + " &nbsp ";
+	}
 		 
          // flight_category
 		 // station_id
@@ -462,7 +495,7 @@ Module.register("MMM-PilotWX", {
 					   + WISP[0].station_id + " &nbsp &nbsp "
 					   + WISP[0].wind_dir_degrees + sym
 					   + WISP[0].wind_speed_kt + "kt" + " &nbsp "
-			+ Math.round(WISP[0].visibility_statute_mi) + "SM" + " &nbsp "
+					 + convert0 // visibilty SM or KM (KM converted from SM data)
 					   + WISP[0].sky_condition[0]["$"].sky_cover
 					   + WISP[0].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
 			+ Math.round(WISP[0].temp_c) + "/"
@@ -478,7 +511,7 @@ Module.register("MMM-PilotWX", {
 					   + WISP[1].station_id + " &nbsp &nbsp "
 					   + WISP[1].wind_dir_degrees + sym
 					   + WISP[1].wind_speed_kt + "kt" + " &nbsp "
-			+ Math.round(WISP[1].visibility_statute_mi) + "SM" + " &nbsp "
+					 + convert1 // visibilty SM or KM (KM converted from SM data)
 					   + WISP[1].sky_condition[0]["$"].sky_cover
 					   + WISP[1].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
 			+ Math.round(WISP[1].temp_c) + "/"
@@ -494,7 +527,7 @@ Module.register("MMM-PilotWX", {
 					   + WISP[2].station_id + " &nbsp &nbsp "
 					   + WISP[2].wind_dir_degrees + sym
 					   + WISP[2].wind_speed_kt + "kt" + " &nbsp "
-			+ Math.round(WISP[2].visibility_statute_mi) + "SM" + " &nbsp "
+					 + convert2 // visibilty SM or KM (KM converted from SM data)
 					   + WISP[2].sky_condition[0]["$"].sky_cover
 					   + WISP[2].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
 			+ Math.round(WISP[2].temp_c) + "/"
@@ -510,7 +543,7 @@ Module.register("MMM-PilotWX", {
 					   + WISP[3].station_id + " &nbsp &nbsp "
 					   + WISP[3].wind_dir_degrees + sym
 					   + WISP[3].wind_speed_kt + "kt" + " &nbsp "
-			+ Math.round(WISP[3].visibility_statute_mi) + "SM" + " &nbsp "
+					 + convert3 // visibilty SM or KM (KM converted from SM data)
 					   + WISP[3].sky_condition[0]["$"].sky_cover
 					   + WISP[3].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
 			+ Math.round(WISP[3].temp_c) + "/"
@@ -526,7 +559,7 @@ Module.register("MMM-PilotWX", {
 					   + WISP[4].station_id + " &nbsp &nbsp "
 					   + WISP[4].wind_dir_degrees + sym
 					   + WISP[4].wind_speed_kt + "kt" + " &nbsp "
-			+ Math.round(WISP[4].visibility_statute_mi) + "SM" + " &nbsp "
+					 + convert4 // visibilty SM or KM (KM converted from SM data)
 					   + WISP[4].sky_condition[0]["$"].sky_cover
 					   + WISP[4].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
 			+ Math.round(WISP[4].temp_c) + "/"
@@ -542,7 +575,7 @@ Module.register("MMM-PilotWX", {
 					   + WISP[5].station_id + " &nbsp &nbsp "
 					   + WISP[5].wind_dir_degrees + sym
 					   + WISP[5].wind_speed_kt + "kt" + " &nbsp "
-			+ Math.round(WISP[5].visibility_statute_mi) + "SM" + " &nbsp "
+					 + convert5 // visibilty SM or KM (KM converted from SM data)
 					   + WISP[5].sky_condition[0]["$"].sky_cover
 					   + WISP[5].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
 			+ Math.round(WISP[5].temp_c) + "/"
@@ -558,7 +591,7 @@ Module.register("MMM-PilotWX", {
 					   + WISP[6].station_id + " &nbsp &nbsp "
 					   + WISP[6].wind_dir_degrees + sym
 					   + WISP[6].wind_speed_kt + "kt" + " &nbsp "
-			+ Math.round(WISP[6].visibility_statute_mi) + "SM" + " &nbsp "
+					 + convert6 // visibilty SM or KM (KM converted from SM data)
 					   + WISP[6].sky_condition[0]["$"].sky_cover
 					   + WISP[6].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
 			+ Math.round(WISP[6].temp_c) + "/"
@@ -574,7 +607,7 @@ Module.register("MMM-PilotWX", {
 					   + WISP[7].station_id + " &nbsp &nbsp "
 					   + WISP[7].wind_dir_degrees + sym
 					   + WISP[7].wind_speed_kt + "kt" + " &nbsp "
-			+ Math.round(WISP[7].visibility_statute_mi) + "SM" + " &nbsp "
+					 + convert7 // visibilty SM or KM (KM converted from SM data)
 					   + WISP[7].sky_condition[0]["$"].sky_cover
 					   + WISP[7].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
 			+ Math.round(WISP[7].temp_c) + "/"
