@@ -14,11 +14,11 @@
 
 * Static config option
 
-![](images/1.png)
+![](images/1.PNG)
 
 * Rotating config option for bottom_bar or top_bar. You could also try the thirds.
 
-![](images/2.png) 
+![](images/2.PNG) 
 
 Color any way you like. Make it your own.
 
@@ -37,6 +37,7 @@ Color any way you like. Make it your own.
 			ICAO: "KJFK,EGLL,UUDD,EDDT,RJAA,ZBAA,LFPG,LIRF", // 8 INTL ICAO's
 			colorCode: "Alternative", // Standard or Alternative
 			mode: "Static",           // Static List or Rotating one by one
+			sym: "@",                 // @ or / (Separator for Wind speed and direction)
 			maxWidth: "100%",         // 100% for mode: Rotating, approx 300px for mode: Static
 			useHeader: false,
 			header: "",

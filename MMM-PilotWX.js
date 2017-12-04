@@ -12,6 +12,7 @@ Module.register("MMM-PilotWX", {
 		ICAO: "KJFK,EGLL,UUDD,EDDT,RJAA,ZBAA,LFPG,LIRF",  // separated by comma only
 		colorCode: "Standard", // Standard or Alternative color coding
 		mode: "Static",        // Static or Rotating display
+		sym: "@",
 		maxWidth: "100%",      // 100% for mode: Rotating, approx 300px for mode: Static
 		useHeader: false,
 		header: "",
@@ -119,12 +120,14 @@ Module.register("MMM-PilotWX", {
 		var top = document.createElement("div");
         top.classList.add("list-row");
 		
+		var sym = this.config.sym;
+		
         var synopsis = document.createElement("div");
         synopsis.classList.add("small", "bright", "bottom_bar");
         synopsis.innerHTML =
 			bullet + " &nbsp "
 			+ WISP.station_id + " &nbsp &nbsp "
-			+ WISP.wind_dir_degrees + "@"
+			+ WISP.wind_dir_degrees + sym
 			+ WISP.wind_speed_kt + "kt" + " &nbsp  &nbsp "
 			+ Math.round(WISP.visibility_statute_mi) + "SM" + " &nbsp &nbsp "
 			+ WISP.sky_condition[0]["$"].sky_cover
@@ -442,6 +445,8 @@ Module.register("MMM-PilotWX", {
 		station.classList.add("small", "bright", "station");
         station.innerHTML = "<u>Station</u> &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp <u>Conditions</u>";
 		top.appendChild(station);
+		
+		var sym = this.config.sym;
 		 
          // flight_category
 		 // station_id
@@ -455,7 +460,7 @@ Module.register("MMM-PilotWX", {
         synopsis.innerHTML = 
 						 aBullet + " &nbsp "
 					   + WISP[0].station_id + " &nbsp &nbsp "
-					   + WISP[0].wind_dir_degrees + "@"
+					   + WISP[0].wind_dir_degrees + sym
 					   + WISP[0].wind_speed_kt + "kt" + " &nbsp "
 			+ Math.round(WISP[0].visibility_statute_mi) + "SM" + " &nbsp "
 					   + WISP[0].sky_condition[0]["$"].sky_cover
@@ -471,7 +476,7 @@ Module.register("MMM-PilotWX", {
         synopsis2.innerHTML = 
 						 bBullet + " &nbsp "
 					   + WISP[1].station_id + " &nbsp &nbsp "
-					   + WISP[1].wind_dir_degrees + "@"
+					   + WISP[1].wind_dir_degrees + sym
 					   + WISP[1].wind_speed_kt + "kt" + " &nbsp "
 			+ Math.round(WISP[1].visibility_statute_mi) + "SM" + " &nbsp "
 					   + WISP[1].sky_condition[0]["$"].sky_cover
@@ -487,7 +492,7 @@ Module.register("MMM-PilotWX", {
         synopsis3.innerHTML = 
 						cBullet + " &nbsp "
 					   + WISP[2].station_id + " &nbsp &nbsp "
-					   + WISP[2].wind_dir_degrees + "@"
+					   + WISP[2].wind_dir_degrees + sym
 					   + WISP[2].wind_speed_kt + "kt" + " &nbsp "
 			+ Math.round(WISP[2].visibility_statute_mi) + "SM" + " &nbsp "
 					   + WISP[2].sky_condition[0]["$"].sky_cover
@@ -503,7 +508,7 @@ Module.register("MMM-PilotWX", {
         synopsis4.innerHTML = 
 						dBullet + " &nbsp "
 					   + WISP[3].station_id + " &nbsp &nbsp "
-					   + WISP[3].wind_dir_degrees + "@"
+					   + WISP[3].wind_dir_degrees + sym
 					   + WISP[3].wind_speed_kt + "kt" + " &nbsp "
 			+ Math.round(WISP[3].visibility_statute_mi) + "SM" + " &nbsp "
 					   + WISP[3].sky_condition[0]["$"].sky_cover
@@ -519,7 +524,7 @@ Module.register("MMM-PilotWX", {
         synopsis5.innerHTML = 
 						eBullet + " &nbsp "
 					   + WISP[4].station_id + " &nbsp &nbsp "
-					   + WISP[4].wind_dir_degrees + "@"
+					   + WISP[4].wind_dir_degrees + sym
 					   + WISP[4].wind_speed_kt + "kt" + " &nbsp "
 			+ Math.round(WISP[4].visibility_statute_mi) + "SM" + " &nbsp "
 					   + WISP[4].sky_condition[0]["$"].sky_cover
@@ -535,7 +540,7 @@ Module.register("MMM-PilotWX", {
         synopsis6.innerHTML = 
 						fBullet + " &nbsp "
 					   + WISP[5].station_id + " &nbsp &nbsp "
-					   + WISP[5].wind_dir_degrees + "@"
+					   + WISP[5].wind_dir_degrees + sym
 					   + WISP[5].wind_speed_kt + "kt" + " &nbsp "
 			+ Math.round(WISP[5].visibility_statute_mi) + "SM" + " &nbsp "
 					   + WISP[5].sky_condition[0]["$"].sky_cover
@@ -551,7 +556,7 @@ Module.register("MMM-PilotWX", {
         synopsis7.innerHTML = 
 						gBullet + " &nbsp "
 					   + WISP[6].station_id + " &nbsp &nbsp "
-					   + WISP[6].wind_dir_degrees + "@"
+					   + WISP[6].wind_dir_degrees + sym
 					   + WISP[6].wind_speed_kt + "kt" + " &nbsp "
 			+ Math.round(WISP[6].visibility_statute_mi) + "SM" + " &nbsp "
 					   + WISP[6].sky_condition[0]["$"].sky_cover
@@ -567,7 +572,7 @@ Module.register("MMM-PilotWX", {
         synopsis8.innerHTML = 
 						hBullet + " &nbsp "
 					   + WISP[7].station_id + " &nbsp &nbsp "
-					   + WISP[7].wind_dir_degrees + "@"
+					   + WISP[7].wind_dir_degrees + sym
 					   + WISP[7].wind_speed_kt + "kt" + " &nbsp "
 			+ Math.round(WISP[7].visibility_statute_mi) + "SM" + " &nbsp "
 					   + WISP[7].sky_condition[0]["$"].sky_cover
