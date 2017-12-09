@@ -13,7 +13,8 @@ Module.register("MMM-PilotWX", {
 		colorCode: "Standard", // Standard or Alternative color coding
 		mode: "Static",        // Static or Rotating display
 		sym: "@",
-		measure: "KM",         // SM or KM (KM converted from SM data) 
+		measure: "KM",         // SM or KM (KM converted from SM data)
+		time: "Zulu",          // Zulu or Local (observation time)
 		maxWidth: "100%",      // 100% for mode: Rotating, approx 300px for mode: Static
 		useHeader: false,
 		header: "",
@@ -130,21 +131,31 @@ Module.register("MMM-PilotWX", {
 		var convert = Math.round(WISP.visibility_statute_mi * 1.609344) + measure + " &nbsp &nbsp "
 	}
 		
+		
+	if(this.config.time == "Zulu"){
+		var time = moment.utc(WISP.observation_time, "YYYY-MM-DD HH:mm:ss Z").format("[(]HH:mm[Z)]");
+	} else{
+		var time = moment(WISP.observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
+	}
+	
+	
         var synopsis = document.createElement("div");
         synopsis.classList.add("small", "bright", "bottom_bar");
         synopsis.innerHTML =
 			bullet + " &nbsp "
 			+ WISP.station_id + " &nbsp &nbsp "
 			+ WISP.wind_dir_degrees + sym
-			+ WISP.wind_speed_kt + "kt" + " &nbsp  &nbsp "
+			+ WISP.wind_speed_kt + "KT" + " &nbsp  &nbsp "
 			+ convert // var for KM or SM //
 			+ WISP.sky_condition[0]["$"].sky_cover
 			+ WISP.sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp &nbsp "
 			+ Math.round(WISP.temp_c) + "/"
 			+ Math.round(WISP.dewpoint_c) + " &nbsp &nbsp  "
-			+ Math.round(WISP.altim_in_hg) + "hg" + " &nbsp &nbsp  "
-			+ moment(WISP.observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]")
-			; 
+			+ +(Math.round(WISP.altim_in_hg + "e+2") + "e-2") + "Hg" + " &nbsp &nbsp  "
+			+ time
+			;
+	//		+ moment(WISP.observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]")
+			 
         top.appendChild(synopsis);
 		 
         wrapper.appendChild(top);
@@ -480,6 +491,26 @@ Module.register("MMM-PilotWX", {
 		var convert6 = Math.round(WISP[6].visibility_statute_mi * 1.609344) + measure + " &nbsp ";
 		var convert7 = Math.round(WISP[7].visibility_statute_mi * 1.609344) + measure + " &nbsp ";
 	}
+	
+	if(this.config.time == "Zulu"){
+		var time0 = moment.utc(WISP[0].observation_time, "YYYY-MM-DD HH:mm:ss Z").format("[(]HH:mm[Z)]");
+		var time1 = moment.utc(WISP[1].observation_time, "YYYY-MM-DD HH:mm:ss Z").format("[(]HH:mm[Z)]");
+		var time2 = moment.utc(WISP[2].observation_time, "YYYY-MM-DD HH:mm:ss Z").format("[(]HH:mm[Z)]");
+		var time3 = moment.utc(WISP[3].observation_time, "YYYY-MM-DD HH:mm:ss Z").format("[(]HH:mm[Z)]");
+		var time4 = moment.utc(WISP[4].observation_time, "YYYY-MM-DD HH:mm:ss Z").format("[(]HH:mm[Z)]");
+		var time5 = moment.utc(WISP[5].observation_time, "YYYY-MM-DD HH:mm:ss Z").format("[(]HH:mm[Z)]");
+		var time6 = moment.utc(WISP[6].observation_time, "YYYY-MM-DD HH:mm:ss Z").format("[(]HH:mm[Z)]");
+		var time7 = moment.utc(WISP[7].observation_time, "YYYY-MM-DD HH:mm:ss Z").format("[(]HH:mm[Z)]");		
+	} else{
+		var time0 = moment(WISP[0].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
+		var time1 = moment(WISP[1].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
+		var time2 = moment(WISP[2].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
+		var time3 = moment(WISP[3].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
+		var time4 = moment(WISP[4].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
+		var time5 = moment(WISP[5].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
+		var time6 = moment(WISP[6].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
+		var time7 = moment(WISP[7].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
+	}
 		 
          // flight_category
 		 // station_id
@@ -494,13 +525,14 @@ Module.register("MMM-PilotWX", {
 						 aBullet + " &nbsp "
 					   + WISP[0].station_id + " &nbsp &nbsp "
 					   + WISP[0].wind_dir_degrees + sym
-					   + WISP[0].wind_speed_kt + "kt" + " &nbsp "
+					   + WISP[0].wind_speed_kt + "KT" + " &nbsp "
 					 + convert0 // visibilty SM or KM (KM converted from SM data)
 					   + WISP[0].sky_condition[0]["$"].sky_cover
 					   + WISP[0].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
 			+ Math.round(WISP[0].temp_c) + "/"
 			+ Math.round(WISP[0].dewpoint_c) + " &nbsp "
-				+ moment(WISP[0].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
+			+ +(Math.round(WISP[0].altim_in_hg + "e+2") + "e-2") + "Hg" + " &nbsp &nbsp  "
+			+ time0;
         top.appendChild(synopsis);
 		 
 		 
@@ -510,13 +542,14 @@ Module.register("MMM-PilotWX", {
 						 bBullet + " &nbsp "
 					   + WISP[1].station_id + " &nbsp &nbsp "
 					   + WISP[1].wind_dir_degrees + sym
-					   + WISP[1].wind_speed_kt + "kt" + " &nbsp "
+					   + WISP[1].wind_speed_kt + "KT" + " &nbsp "
 					 + convert1 // visibilty SM or KM (KM converted from SM data)
 					   + WISP[1].sky_condition[0]["$"].sky_cover
 					   + WISP[1].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
 			+ Math.round(WISP[1].temp_c) + "/"
 			+ Math.round(WISP[1].dewpoint_c) + " &nbsp "
-				+ moment(WISP[1].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
+			+ +(Math.round(WISP[1].altim_in_hg + "e+2") + "e-2") + "Hg" + " &nbsp &nbsp  "
+			+ time1;
         top.appendChild(synopsis2);
 		 
 		 
@@ -526,13 +559,14 @@ Module.register("MMM-PilotWX", {
 						cBullet + " &nbsp "
 					   + WISP[2].station_id + " &nbsp &nbsp "
 					   + WISP[2].wind_dir_degrees + sym
-					   + WISP[2].wind_speed_kt + "kt" + " &nbsp "
+					   + WISP[2].wind_speed_kt + "KT" + " &nbsp "
 					 + convert2 // visibilty SM or KM (KM converted from SM data)
 					   + WISP[2].sky_condition[0]["$"].sky_cover
 					   + WISP[2].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
 			+ Math.round(WISP[2].temp_c) + "/"
 			+ Math.round(WISP[2].dewpoint_c) + " &nbsp "
-				+ moment(WISP[2].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
+			+ +(Math.round(WISP[2].altim_in_hg + "e+2") + "e-2") + "Hg" + " &nbsp &nbsp  "
+			+ time2;
         top.appendChild(synopsis3);
 		 
 		 
@@ -542,13 +576,14 @@ Module.register("MMM-PilotWX", {
 						dBullet + " &nbsp "
 					   + WISP[3].station_id + " &nbsp &nbsp "
 					   + WISP[3].wind_dir_degrees + sym
-					   + WISP[3].wind_speed_kt + "kt" + " &nbsp "
+					   + WISP[3].wind_speed_kt + "KT" + " &nbsp "
 					 + convert3 // visibilty SM or KM (KM converted from SM data)
 					   + WISP[3].sky_condition[0]["$"].sky_cover
 					   + WISP[3].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
 			+ Math.round(WISP[3].temp_c) + "/"
 			+ Math.round(WISP[3].dewpoint_c) + " &nbsp "
-				+ moment(WISP[3].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
+			+ +(Math.round(WISP[3].altim_in_hg + "e+2") + "e-2") + "Hg" + " &nbsp &nbsp  "
+			+ time3;
         top.appendChild(synopsis4);
 		 
 		 
@@ -558,13 +593,14 @@ Module.register("MMM-PilotWX", {
 						eBullet + " &nbsp "
 					   + WISP[4].station_id + " &nbsp &nbsp "
 					   + WISP[4].wind_dir_degrees + sym
-					   + WISP[4].wind_speed_kt + "kt" + " &nbsp "
+					   + WISP[4].wind_speed_kt + "KT" + " &nbsp "
 					 + convert4 // visibilty SM or KM (KM converted from SM data)
 					   + WISP[4].sky_condition[0]["$"].sky_cover
 					   + WISP[4].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
 			+ Math.round(WISP[4].temp_c) + "/"
 			+ Math.round(WISP[4].dewpoint_c) + " &nbsp "
-				+ moment(WISP[4].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
+			+ +(Math.round(WISP[4].altim_in_hg + "e+2") + "e-2") + "Hg" + " &nbsp &nbsp  "
+			+ time4;
         top.appendChild(synopsis5);
 		 
 		 
@@ -574,13 +610,14 @@ Module.register("MMM-PilotWX", {
 						fBullet + " &nbsp "
 					   + WISP[5].station_id + " &nbsp &nbsp "
 					   + WISP[5].wind_dir_degrees + sym
-					   + WISP[5].wind_speed_kt + "kt" + " &nbsp "
+					   + WISP[5].wind_speed_kt + "KT" + " &nbsp "
 					 + convert5 // visibilty SM or KM (KM converted from SM data)
 					   + WISP[5].sky_condition[0]["$"].sky_cover
 					   + WISP[5].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
 			+ Math.round(WISP[5].temp_c) + "/"
 			+ Math.round(WISP[5].dewpoint_c) + " &nbsp "
-				+ moment(WISP[5].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
+			+ +(Math.round(WISP[5].altim_in_hg + "e+2") + "e-2") + "Hg" + " &nbsp &nbsp  "
+			+ time5;
         top.appendChild(synopsis6);
 		 
 		 
@@ -590,13 +627,14 @@ Module.register("MMM-PilotWX", {
 						gBullet + " &nbsp "
 					   + WISP[6].station_id + " &nbsp &nbsp "
 					   + WISP[6].wind_dir_degrees + sym
-					   + WISP[6].wind_speed_kt + "kt" + " &nbsp "
+					   + WISP[6].wind_speed_kt + "KT" + " &nbsp "
 					 + convert6 // visibilty SM or KM (KM converted from SM data)
 					   + WISP[6].sky_condition[0]["$"].sky_cover
 					   + WISP[6].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
 			+ Math.round(WISP[6].temp_c) + "/"
 			+ Math.round(WISP[6].dewpoint_c) + " &nbsp "
-				+ moment(WISP[6].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
+			+ +(Math.round(WISP[6].altim_in_hg + "e+2") + "e-2") + "Hg" + " &nbsp &nbsp  "
+			+ time6;
         top.appendChild(synopsis7);
 		 
 		 
@@ -606,13 +644,14 @@ Module.register("MMM-PilotWX", {
 						hBullet + " &nbsp "
 					   + WISP[7].station_id + " &nbsp &nbsp "
 					   + WISP[7].wind_dir_degrees + sym
-					   + WISP[7].wind_speed_kt + "kt" + " &nbsp "
+					   + WISP[7].wind_speed_kt + "KT" + " &nbsp "
 					 + convert7 // visibilty SM or KM (KM converted from SM data)
 					   + WISP[7].sky_condition[0]["$"].sky_cover
 					   + WISP[7].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
 			+ Math.round(WISP[7].temp_c) + "/"
 			+ Math.round(WISP[7].dewpoint_c) + " &nbsp "
-				+ moment(WISP[7].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
+			+ +(Math.round(WISP[7].altim_in_hg + "e+2") + "e-2") + "Hg" + " &nbsp &nbsp  "
+			+ time7;
         top.appendChild(synopsis8);
 			
 		wrapper.appendChild(top);
@@ -622,6 +661,11 @@ Module.register("MMM-PilotWX", {
         return wrapper;
 
 	},  // <-- closes the getDom function
+	
+	
+//	roundToTwo: function(num) {    
+//    return +(Math.round(num + "e+2")  + "e-2");
+//	},
 
 
 	processWISP: function(data) { 

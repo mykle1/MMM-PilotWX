@@ -14,11 +14,11 @@
 
 * Static config option
 
-![](images/1.png)
+![](images/1.PNG)
 
 * Rotating config option for bottom_bar or top_bar. You could also try the thirds.
 
-![](images/2.png) 
+![](images/2.PNG) 
 
 Color any way you like. Make it your own.
 
@@ -39,6 +39,7 @@ Color any way you like. Make it your own.
 			mode: "Static",           // Static (List) or Rotating (one by one)
 			sym: "@",                 // @ or / (Separator for Wind speed and direction)
 			measure: "SM",            // SM or KM (KM converted from SM data)
+			time: "Local",            // Zulu or Local (observation time)
 			maxWidth: "100%",         // 100% for mode: Rotating, approx 300px for mode: Static
 			useHeader: false,
 			header: "",
