@@ -18,7 +18,7 @@
 
 * Rotating config option for bottom_bar or top_bar. You could also try the thirds.
 
-![](images/2.PNG) 
+![](images/2.png) 
 
 Color any way you like. Make it your own.
 
