@@ -1,8 +1,9 @@
- /* Magic Mirror
+/* Magic Mirror
   *
   * Module: MMM-PilotWX
   *
   * By Mykle1
+  * Mod 12/9/17 by Area_49: revised to loop through all Metars returned in the Static mode (variable length).
   * 
   */
 Module.register("MMM-PilotWX", {
@@ -14,6 +15,7 @@ Module.register("MMM-PilotWX", {
 		mode: "Static",        // Static or Rotating display
 		sym: "@",
 		measure: "KM",         // SM or KM (KM converted from SM data)
+		tempUnits: "C",		   // C or F (F converted from C)
 		time: "Zulu",          // Zulu or Local (observation time)
 		maxWidth: "100%",      // 100% for mode: Rotating, approx 300px for mode: Static
 		useHeader: false,
@@ -45,6 +47,14 @@ Module.register("MMM-PilotWX", {
 
 
     getDom: function() {
+
+		function to_fahrenheit (t) {
+		 	return t * 9 / 5 + 32;              // convert celcius to fahrenheit
+		 }
+
+		function to_km (d) {
+		 	return d * 1.609344;              // convert SM to Kilometer
+		 }
 		
         var wrapper = document.createElement("div");
         wrapper.className = "wrapper";
@@ -66,6 +76,7 @@ Module.register("MMM-PilotWX", {
             wrapper.appendChild(header);
         }
 		
+	
 		/// Begin config option for rotating or static //
 		///////////// First - The rotating data ///////////////////
 		
@@ -125,20 +136,26 @@ Module.register("MMM-PilotWX", {
 		var sym = this.config.sym;
 		var measure = this.config.measure;
 		
-	if (this.config.measure != "KM" ){
-		var convert = Math.round(WISP.visibility_statute_mi) + measure + " &nbsp &nbsp ";
-	} else {
-		var convert = Math.round(WISP.visibility_statute_mi * 1.609344) + measure + " &nbsp &nbsp "
-	}
+		if (this.config.measure != "KM" ){
+			var convert = Math.round(WISP.visibility_statute_mi) + measure + " &nbsp &nbsp ";
+		} else {
+			var convert = Math.round(to_km(WISP.visibility_statute_mi)) + measure + " &nbsp &nbsp ";
+		}
 		
+		if (this.config.tempUnits != "C" ){
+			var tempCurr = Math.round(to_fahrenheit(WISP.temp_c));
+			var dewCurr = Math.round(to_fahrenheit(WISP.dewpoint_c));
+		} else {
+			var tempCurr = Math.round(WISP.temp_c);
+			var dewCurr = Math.round(WISP.dewpoint_c);
+		}
 		
-	if(this.config.time == "Zulu"){
-		var time = moment.utc(WISP.observation_time, "YYYY-MM-DD HH:mm:ss Z").format("[(]HH:mm[Z)]");
-	} else{
-		var time = moment(WISP.observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
-	}
-	
-	
+		if(this.config.time == "Zulu"){
+			var time = moment.utc(WISP.observation_time, "YYYY-MM-DD HH:mm:ss Z").format("[(]HH:mm[Z)]");
+		} else{
+			var time = moment(WISP.observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
+		}
+		
         var synopsis = document.createElement("div");
         synopsis.classList.add("small", "bright", "bottom_bar");
         synopsis.innerHTML =
@@ -149,8 +166,8 @@ Module.register("MMM-PilotWX", {
 			+ convert // var for KM or SM //
 			+ WISP.sky_condition[0]["$"].sky_cover
 			+ WISP.sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp &nbsp "
-			+ Math.round(WISP.temp_c) + "/"
-			+ Math.round(WISP.dewpoint_c) + " &nbsp &nbsp  "
+			+ tempCurr + "/"
+			+ dewCurr + " &nbsp &nbsp  "
 			+ +(Math.round(WISP.altim_in_hg + "e+2") + "e-2") + "Hg" + " &nbsp &nbsp  "
 			+ time
 			;
@@ -166,351 +183,103 @@ Module.register("MMM-PilotWX", {
         ////////////////// ELSE - the Static data (Below) //////////////
 		
 		} else {
-			
+	
+		var Plength = Object.keys(this.WISP).length;
+		var Pindex = 0;
+		var Fcolor_even = "<font color = white>";
+		var Fcolor_odd = "<font color = #33FFEE>";
+
+		function isEven(n) {
+			return n == parseFloat(n)? !(n%2) : void 0; // true if even number or zero
+		}
+
 		var top = document.createElement("div");
         top.classList.add("list-row");
 		
 		var WISP = this.WISP;
+		//console.log (WISP)
+		//Station and conditions column headers
+		var station = document.createElement("div");
+			station.classList.add("small", "bright", "station");
+			station.innerHTML = "<u>Station</u> &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp <u>Conditions</u>";
+			top.appendChild(station);
+	
 		 
+///loop through all METAR items here		 
+		while (Pindex < Plength) {
+			// vars for color coding flight_category bullets
+			var a = WISP[Pindex].flight_category;
 		 
-		// vars for color coding flight_category bullets
-		var a = WISP[0].flight_category;
-		var b = WISP[1].flight_category;
-		var c = WISP[2].flight_category;
-		var d = WISP[3].flight_category;
-		var e = WISP[4].flight_category;
-		var f = WISP[5].flight_category;
-		var g = WISP[6].flight_category;
-		var h = WISP[7].flight_category;
+			// start config opton for color coding
+			if (this.config.colorCode != "Standard"){
 		 
-		 
-		 // start config opton for color coding
-		if (this.config.colorCode != "Standard"){
-		 
-		 
-		 
-		// Alternative color coding 1 of 8, a-h
-			   if (a == "VFR"){
-			var aBullet = '<font color = green> &#x29BF </font>';
-		} else if (a == "MVFR"){
-			var aBullet = '<font color = blue> &#x29BF </font >';
-		} else if (a == "IFR"){
-			var aBullet = '<font color = red> &#x29BF </font>';
-		} else if (a == "LIFR"){
-			var aBullet = '<font color = magenta> &#x29BF </font>';
-		} else {
-			var aBullet = '<font color = grey> &#x29BF </font>';
-		}		
+			// Alternative color coding
+			if (a == "VFR"){
+				var aBullet = '<font color = green> &#x29BF </font>';
+			} else if (a == "MVFR"){
+				var aBullet = '<font color = blue> &#x29BF </font >';
+			} else if (a == "IFR"){
+				var aBullet = '<font color = red> &#x29BF </font>';
+			} else if (a == "LIFR"){
+				var aBullet = '<font color = magenta> &#x29BF </font>';
+			} else {
+				var aBullet = '<font color = grey> &#x29BF </font>';
+			}		
 		
-		// Alternative color coding 2 of 8, a-h		
-				if (b == "VFR"){
-			var bBullet = '<font color = green> &#x29BF </font>';
-		} else if (b == "MVFR"){
-			var bBullet = '<font color = blue> &#x29BF </font >';
-		} else if (b == "IFR"){
-			var bBullet = '<font color = red> &#x29BF </font>';
-		} else if (b == "LIFR"){
-			var bBullet = '<font color = magenta> &#x29BF </font>';
-		} else {
-			var bBullet = '<font color = grey> &#x29BF </font>';
-		}
+			} else { // continue config option for color coding
 		
-		
-		// Alternative color coding 3 of 8, a-h
-			   if (c == "VFR"){
-			var cBullet = '<font color = green> &#x29BF </font>';
-		} else if (c == "MVFR"){
-			var cBullet = '<font color = blue> &#x29BF </font >';
-		} else if (c == "IFR"){
-			var cBullet = '<font color = red> &#x29BF </font>';
-		} else if (c == "LIFR"){
-			var cBullet = '<font color = magenta> &#x29BF </font>';
-		} else {
-			var cBullet = '<font color = grey> &#x29BF </font>';
-		}		
-		
-		// Alternative color coding 4 of 8, a-h		
-				if (d == "VFR"){
-			var dBullet = '<font color = green> &#x29BF </font>';
-		} else if (d == "MVFR"){
-			var dBullet = '<font color = blue> &#x29BF </font >';
-		} else if (d == "IFR"){
-			var dBullet = '<font color = red> &#x29BF </font>';
-		} else if (d == "LIFR"){
-			var dBullet = '<font color = magenta> &#x29BF </font>';
-		} else {
-			var dBullet = '<font color = grey> &#x29BF </font>';
-		}
-		
-		
-		// Alternative color coding 5 of 8, a-h
-			   if (e == "VFR"){
-			var eBullet = '<font color = green> &#x29BF </font>';
-		} else if (e == "MVFR"){
-			var eBullet = '<font color = blue> &#x29BF </font >';
-		} else if (e == "IFR"){
-			var eBullet = '<font color = red> &#x29BF </font>';
-		} else if (e == "LIFR"){
-			var eBullet = '<font color = magenta> &#x29BF </font>';
-		} else {
-			var eBullet = '<font color = grey> &#x29BF </font>';
-		}		
-		
-		// Alternative color coding 6 of 8, a-h		
-				if (f == "VFR"){
-			var fBullet = '<font color = green> &#x29BF </font>';
-		} else if (f == "MVFR"){
-			var fBullet = '<font color = blue> &#x29BF </font >';
-		} else if (f == "IFR"){
-			var fBullet = '<font color = red> &#x29BF </font>';
-		} else if (f == "LIFR"){
-			var fBullet = '<font color = magenta> &#x29BF </font>';
-		} else {
-			var fBullet = '<font color = grey> &#x29BF </font>';
-		}
-		
-		
-		// Alternative color coding 7 of 8, a-h
-			   if (g == "VFR"){
-			var gBullet = '<font color = green> &#x29BF </font>';
-		} else if (g == "MVFR"){
-			var gBullet = '<font color = blue> &#x29BF </font >';
-		} else if (g == "IFR"){
-			var gBullet = '<font color = red> &#x29BF </font>';
-		} else if (g == "LIFR"){
-			var gBullet = '<font color = magenta> &#x29BF </font>';
-		} else {
-			var gBullet = '<font color = grey> &#x29BF </font>';
-		}		
-		
-		// Alternative color coding 8 of 8, a-h		
-				if (h == "VFR"){
-			var hBullet = '<font color = green> &#x29BF </font>';
-		} else if (h == "MVFR"){
-			var hBullet = '<font color = blue> &#x29BF </font >';
-		} else if (h == "IFR"){
-			var hBullet = '<font color = red> &#x29BF </font>';
-		} else if (h == "LIFR"){
-			var hBullet = '<font color = magenta> &#x29BF </font>';
-		} else {
-			var hBullet = '<font color = grey> &#x29BF </font>';
-		}
-		
-	} else { // continue config option for color coding
-		
-		// Stardard color coding 1 of 8, a-h
-			   if (a == "VFR"){
-			var aBullet = '<font color = blue> &#x29BF </font>';
-		} else if (a == "MVFR"){
-			var aBullet = '<font color = green> &#x29BF </font >';
-		} else if (a == "IFR"){
-			var aBullet = '<font color = yellow> &#x29BF </font>';
-		} else if (a == "LIFR"){
-			var aBullet = '<font color = red> &#x29BF </font>';
-		} else {
-			var aBullet = '<font color = grey> &#x29BF </font>';
-		}		
-		
-		// Stardard color coding 2 of 8, a-h		
-				if (b == "VFR"){
-			var bBullet = '<font color = blue> &#x29BF </font>'; 
-		} else if (b == "MVFR"){
-			var bBullet = '<font color = green> &#x29BF </font >';
-		} else if (b == "IFR"){
-			var bBullet = '<font color = yellow> &#x29BF </font>';
-		} else if (b == "LIFR"){
-			var bBullet = '<font color = red> &#x29BF </font>';
-		} else {
-			var bBullet = '<font color = grey> &#x29BF </font>';
-		}
-		
-		
-		// Stardard color coding 3 of 8, a-h
-			   if (c == "VFR"){
-			var cBullet = '<font color = blue> &#x29BF </font>';
-		} else if (c == "MVFR"){
-			var cBullet = '<font color = green> &#x29BF </font >';
-		} else if (c == "IFR"){
-			var cBullet = '<font color = yellow> &#x29BF </font>';
-		} else if (c == "LIFR"){
-			var cBullet = '<font color = red> &#x29BF </font>';
-		} else {
-			var cBullet = '<font color = grey> &#x29BF </font>';
-		}		
-		
-		// Stardard color coding 4 of 8, a-h		
-				if (d == "VFR"){
-			var dBullet = '<font color = blue> &#x29BF </font>';
-		} else if (d == "MVFR"){
-			var dBullet = '<font color = green> &#x29BF </font >';
-		} else if (d == "IFR"){
-			var dBullet = '<font color = yellow> &#x29BF </font>';
-		} else if (d == "LIFR"){
-			var dBullet = '<font color = red> &#x29BF </font>';
-		} else {
-			var dBullet = '<font color = grey> &#x29BF </font>';
-		}
-		
-		
-		// Stardard color coding 5 of 8, a-h
-			   if (e == "VFR"){
-			var eBullet = '<font color = blue> &#x29BF </font>';
-		} else if (e == "MVFR"){
-			var eBullet = '<font color = green> &#x29BF </font >';
-		} else if (e == "IFR"){
-			var eBullet = '<font color = yellow> &#x29BF </font>';
-		} else if (e == "LIFR"){
-			var eBullet = '<font color = red> &#x29BF </font>';
-		} else {
-			var eBullet = '<font color = grey> &#x29BF </font>';
-		}		
-		
-		// Stardard color coding 6 of 8, a-h		
-				if (f == "VFR"){
-			var fBullet = '<font color = green> &#x29BF </font>';
-		} else if (f == "MVFR"){
-			var fBullet = '<font color = blue> &#x29BF </font >';
-		} else if (f == "IFR"){
-			var fBullet = '<font color = red> &#x29BF </font>';
-		} else if (f == "LIFR"){
-			var fBullet = '<font color = magenta> &#x29BF </font>';
-		} else {
-			var fBullet = '<font color = grey> &#x29BF </font>';
-		}
-		
-		
-		// Stardard color coding 7 of 8, a-h
-			   if (g == "VFR"){
-			var gBullet = '<font color = blue> &#x29BF </font>';
-		} else if (g == "MVFR"){
-			var gBullet = '<font color = green> &#x29BF </font >';
-		} else if (g == "IFR"){
-			var gBullet = '<font color = yellow> &#x29BF </font>';
-		} else if (g == "LIFR"){
-			var gBullet = '<font color = red> &#x29BF </font>';
-		} else {
-			var gBullet = '<font color = grey> &#x29BF </font>';
-		}		
-		
-		// Stardard color coding 8 of 8, a-h		
-				if (h == "VFR"){
-			var hBullet = '<font color = blue> &#x29BF </font>';
-		} else if (h == "MVFR"){
-			var hBullet = '<font color = green> &#x29BF </font >';
-		} else if (h == "IFR"){
-			var hBullet = '<font color = yellow> &#x29BF </font>';
-		} else if (h == "LIFR"){
-			var hBullet = '<font color = red> &#x29BF </font>';
-		} else {
-			var hBullet = '<font color = grey> &#x29BF </font>';
-		}
-	} // <-- end config option for color coding SHEEESH!
+		// Stardard color coding
+			if (a == "VFR"){
+				var aBullet = '<font color = blue> &#x29BF </font>';
+			} else if (a == "MVFR"){
+				var aBullet = '<font color = green> &#x29BF </font >';
+			} else if (a == "IFR"){
+				var aBullet = '<font color = yellow> &#x29BF </font>';
+			} else if (a == "LIFR"){
+				var aBullet = '<font color = red> &#x29BF </font>';
+			} else {
+				var aBullet = '<font color = grey> &#x29BF </font>';
+			}		
+		} // <-- end config option for color coding SHEEESH!
 	
 	
 		// if cloud_base_ft_agl == undefined then show nothing
-        if (WISP[0].sky_condition[0]["$"].cloud_base_ft_agl == undefined){
-			WISP[0].sky_condition[0]["$"].cloud_base_ft_agl = "";
-		}
-		if (WISP[1].sky_condition[0]["$"].cloud_base_ft_agl == undefined){
-			WISP[1].sky_condition[0]["$"].cloud_base_ft_agl = "";
-		}
-		if (WISP[2].sky_condition[0]["$"].cloud_base_ft_agl == undefined){
-			WISP[2].sky_condition[0]["$"].cloud_base_ft_agl = "";
-		}
-		if (WISP[3].sky_condition[0]["$"].cloud_base_ft_agl == undefined){
-			WISP[3].sky_condition[0]["$"].cloud_base_ft_agl = "";
-		}
-		if (WISP[4].sky_condition[0]["$"].cloud_base_ft_agl == undefined){
-			WISP[4].sky_condition[0]["$"].cloud_base_ft_agl = "";
-		}
-		if (WISP[5].sky_condition[0]["$"].cloud_base_ft_agl == undefined){
-			WISP[5].sky_condition[0]["$"].cloud_base_ft_agl = "";
-		}
-		if (WISP[6].sky_condition[0]["$"].cloud_base_ft_agl == undefined){
-			WISP[6].sky_condition[0]["$"].cloud_base_ft_agl = "";
-		}
-		if (WISP[7].sky_condition[0]["$"].cloud_base_ft_agl == undefined){
-			WISP[7].sky_condition[0]["$"].cloud_base_ft_agl = "";
-		}
+	        if (WISP[Pindex].sky_condition[0]["$"].cloud_base_ft_agl == undefined){
+				WISP[Pindex].sky_condition[0]["$"].cloud_base_ft_agl = "";
+			}
 		
 		// For alignment because I can't do tables yet
-		if (WISP[0].station_id == "LIRF"){
-			WISP[0].station_id = "LIRF" + " &nbsp ";
-		}
-		if (WISP[1].station_id == "LIRF"){
-			WISP[1].station_id = "LIRF" + " &nbsp ";
-		}
-		if (WISP[2].station_id == "LIRF"){
-			WISP[2].station_id = "LIRF" + " &nbsp ";
-		}
-		if (WISP[3].station_id == "LIRF"){
-			WISP[3].station_id = "LIRF" + " &nbsp ";
-		}
-		if (WISP[4].station_id == "LIRF"){
-			WISP[4].station_id = "LIRF" + " &nbsp ";
-		}
-		if (WISP[5].station_id == "LIRF"){
-			WISP[5].station_id = "LIRF" + " &nbsp ";
-		}
-		if (WISP[6].station_id == "LIRF"){
-			WISP[6].station_id = "LIRF" + " &nbsp ";
-		}
-		if (WISP[7].station_id == "LIRF"){
-			WISP[7].station_id = "LIRF" + " &nbsp ";
-		}
+			if (WISP[Pindex].station_id == "LIRF"){
+				WISP[Pindex].station_id = "LIRF" + " &nbsp ";
+			}
 		
-		//Station and conditions column headers
-		var station = document.createElement("div");
-		station.classList.add("small", "bright", "station");
-        station.innerHTML = "<u>Station</u> &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp <u>Conditions</u>";
-		top.appendChild(station);
-		
-		var sym = this.config.sym;
-		var measure = this.config.measure;
+	
+			var sym = this.config.sym;
+			var measure = this.config.measure;
 		
 		// conversion from Statute Miles(SM)(data) to Kilometers(KM)
 		// 1 statute mile = 1.609344km
 		// Rounded
 		
-	if (this.config.measure != "KM"){
-		var convert0 = Math.round(WISP[0].visibility_statute_mi) + measure + " &nbsp ";
-		var convert1 = Math.round(WISP[1].visibility_statute_mi) + measure + " &nbsp ";
-		var convert2 = Math.round(WISP[2].visibility_statute_mi) + measure + " &nbsp ";
-		var convert3 = Math.round(WISP[3].visibility_statute_mi) + measure + " &nbsp ";
-		var convert4 = Math.round(WISP[4].visibility_statute_mi) + measure + " &nbsp ";
-		var convert5 = Math.round(WISP[5].visibility_statute_mi) + measure + " &nbsp ";
-		var convert6 = Math.round(WISP[6].visibility_statute_mi) + measure + " &nbsp ";
-		var convert7 = Math.round(WISP[7].visibility_statute_mi) + measure + " &nbsp ";
-	} else {
-		var convert0 = Math.round(WISP[0].visibility_statute_mi * 1.609344) + measure + " &nbsp ";
-		var convert1 = Math.round(WISP[1].visibility_statute_mi * 1.609344) + measure + " &nbsp ";
-		var convert2 = Math.round(WISP[2].visibility_statute_mi * 1.609344) + measure + " &nbsp ";
-		var convert3 = Math.round(WISP[3].visibility_statute_mi * 1.609344) + measure + " &nbsp ";
-		var convert4 = Math.round(WISP[4].visibility_statute_mi * 1.609344) + measure + " &nbsp ";
-		var convert5 = Math.round(WISP[5].visibility_statute_mi * 1.609344) + measure + " &nbsp ";
-		var convert6 = Math.round(WISP[6].visibility_statute_mi * 1.609344) + measure + " &nbsp ";
-		var convert7 = Math.round(WISP[7].visibility_statute_mi * 1.609344) + measure + " &nbsp ";
-	}
+			if (this.config.measure != "KM"){
+				var convert0 = Math.round(WISP[Pindex].visibility_statute_mi) + measure + " &nbsp ";
+			} else {
+				var convert0 = Math.round(to_km(WISP[Pindex].visibility_statute_mi)) + measure + " &nbsp ";
+			}
+
+			if (this.config.tempUnits != "C" ){
+				var tempCurr = Math.round(to_fahrenheit(WISP[Pindex].temp_c));
+				var dewCurr = Math.round(to_fahrenheit(WISP[Pindex].dewpoint_c));
+			} else {
+				var tempCurr = Math.round(WISP[Pindex].temp_c);
+				var dewCurr = Math.round(WISP[Pindex].dewpoint_c);
+			}
 	
-	if(this.config.time == "Zulu"){
-		var time0 = moment.utc(WISP[0].observation_time, "YYYY-MM-DD HH:mm:ss Z").format("[(]HH:mm[Z)]");
-		var time1 = moment.utc(WISP[1].observation_time, "YYYY-MM-DD HH:mm:ss Z").format("[(]HH:mm[Z)]");
-		var time2 = moment.utc(WISP[2].observation_time, "YYYY-MM-DD HH:mm:ss Z").format("[(]HH:mm[Z)]");
-		var time3 = moment.utc(WISP[3].observation_time, "YYYY-MM-DD HH:mm:ss Z").format("[(]HH:mm[Z)]");
-		var time4 = moment.utc(WISP[4].observation_time, "YYYY-MM-DD HH:mm:ss Z").format("[(]HH:mm[Z)]");
-		var time5 = moment.utc(WISP[5].observation_time, "YYYY-MM-DD HH:mm:ss Z").format("[(]HH:mm[Z)]");
-		var time6 = moment.utc(WISP[6].observation_time, "YYYY-MM-DD HH:mm:ss Z").format("[(]HH:mm[Z)]");
-		var time7 = moment.utc(WISP[7].observation_time, "YYYY-MM-DD HH:mm:ss Z").format("[(]HH:mm[Z)]");		
-	} else{
-		var time0 = moment(WISP[0].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
-		var time1 = moment(WISP[1].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
-		var time2 = moment(WISP[2].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
-		var time3 = moment(WISP[3].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
-		var time4 = moment(WISP[4].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
-		var time5 = moment(WISP[5].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
-		var time6 = moment(WISP[6].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
-		var time7 = moment(WISP[7].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
-	}
+			if(this.config.time == "Zulu"){
+				var time0 = moment.utc(WISP[Pindex].observation_time, "YYYY-MM-DD HH:mm:ss Z").format("[(]HH:mm[Z)]");
+			} else {
+				var time0 = moment(WISP[Pindex].observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
+			}
 		 
          // flight_category
 		 // station_id
@@ -518,142 +287,31 @@ Module.register("MMM-PilotWX", {
 		 // visibility in SM
 		 // sky condition
 		 // temp and dew point in C
-        var synopsis = document.createElement("div");
-        synopsis.classList.add("xsmall", "bright", "synopsis");
-	//	console.log(this.Pilot);
-        synopsis.innerHTML = 
-						 aBullet + " &nbsp "
-					   + WISP[0].station_id + " &nbsp &nbsp "
-					   + WISP[0].wind_dir_degrees + sym
-					   + WISP[0].wind_speed_kt + "KT" + " &nbsp "
-					 + convert0 // visibilty SM or KM (KM converted from SM data)
-					   + WISP[0].sky_condition[0]["$"].sky_cover
-					   + WISP[0].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
-			+ Math.round(WISP[0].temp_c) + "/"
-			+ Math.round(WISP[0].dewpoint_c) + " &nbsp "
-			+ +(Math.round(WISP[0].altim_in_hg + "e+2") + "e-2") + "Hg" + " &nbsp &nbsp  "
-			+ time0;
-        top.appendChild(synopsis);
-		 
-		 
-		var synopsis2 = document.createElement("div");
-        synopsis2.classList.add("xsmall", "bright", "synopsis2");
-        synopsis2.innerHTML = 
-						 bBullet + " &nbsp "
-					   + WISP[1].station_id + " &nbsp &nbsp "
-					   + WISP[1].wind_dir_degrees + sym
-					   + WISP[1].wind_speed_kt + "KT" + " &nbsp "
-					 + convert1 // visibilty SM or KM (KM converted from SM data)
-					   + WISP[1].sky_condition[0]["$"].sky_cover
-					   + WISP[1].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
-			+ Math.round(WISP[1].temp_c) + "/"
-			+ Math.round(WISP[1].dewpoint_c) + " &nbsp "
-			+ +(Math.round(WISP[1].altim_in_hg + "e+2") + "e-2") + "Hg" + " &nbsp &nbsp  "
-			+ time1;
-        top.appendChild(synopsis2);
-		 
-		 
-		var synopsis3 = document.createElement("div");
-        synopsis3.classList.add("xsmall", "bright", "synopsis3");
-        synopsis3.innerHTML = 
-						cBullet + " &nbsp "
-					   + WISP[2].station_id + " &nbsp &nbsp "
-					   + WISP[2].wind_dir_degrees + sym
-					   + WISP[2].wind_speed_kt + "KT" + " &nbsp "
-					 + convert2 // visibilty SM or KM (KM converted from SM data)
-					   + WISP[2].sky_condition[0]["$"].sky_cover
-					   + WISP[2].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
-			+ Math.round(WISP[2].temp_c) + "/"
-			+ Math.round(WISP[2].dewpoint_c) + " &nbsp "
-			+ +(Math.round(WISP[2].altim_in_hg + "e+2") + "e-2") + "Hg" + " &nbsp &nbsp  "
-			+ time2;
-        top.appendChild(synopsis3);
-		 
-		 
-		var synopsis4 = document.createElement("div");
-        synopsis4.classList.add("xsmall", "bright", "synopsis4");
-        synopsis4.innerHTML = 
-						dBullet + " &nbsp "
-					   + WISP[3].station_id + " &nbsp &nbsp "
-					   + WISP[3].wind_dir_degrees + sym
-					   + WISP[3].wind_speed_kt + "KT" + " &nbsp "
-					 + convert3 // visibilty SM or KM (KM converted from SM data)
-					   + WISP[3].sky_condition[0]["$"].sky_cover
-					   + WISP[3].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
-			+ Math.round(WISP[3].temp_c) + "/"
-			+ Math.round(WISP[3].dewpoint_c) + " &nbsp "
-			+ +(Math.round(WISP[3].altim_in_hg + "e+2") + "e-2") + "Hg" + " &nbsp &nbsp  "
-			+ time3;
-        top.appendChild(synopsis4);
-		 
-		 
-		var synopsis5 = document.createElement("div");
-        synopsis5.classList.add("xsmall", "bright", "synopsis5");
-        synopsis5.innerHTML = 
-						eBullet + " &nbsp "
-					   + WISP[4].station_id + " &nbsp &nbsp "
-					   + WISP[4].wind_dir_degrees + sym
-					   + WISP[4].wind_speed_kt + "KT" + " &nbsp "
-					 + convert4 // visibilty SM or KM (KM converted from SM data)
-					   + WISP[4].sky_condition[0]["$"].sky_cover
-					   + WISP[4].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
-			+ Math.round(WISP[4].temp_c) + "/"
-			+ Math.round(WISP[4].dewpoint_c) + " &nbsp "
-			+ +(Math.round(WISP[4].altim_in_hg + "e+2") + "e-2") + "Hg" + " &nbsp &nbsp  "
-			+ time4;
-        top.appendChild(synopsis5);
-		 
-		 
-		var synopsis6 = document.createElement("div");
-        synopsis6.classList.add("xsmall", "bright", "synopsis6");
-        synopsis6.innerHTML = 
-						fBullet + " &nbsp "
-					   + WISP[5].station_id + " &nbsp &nbsp "
-					   + WISP[5].wind_dir_degrees + sym
-					   + WISP[5].wind_speed_kt + "KT" + " &nbsp "
-					 + convert5 // visibilty SM or KM (KM converted from SM data)
-					   + WISP[5].sky_condition[0]["$"].sky_cover
-					   + WISP[5].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
-			+ Math.round(WISP[5].temp_c) + "/"
-			+ Math.round(WISP[5].dewpoint_c) + " &nbsp "
-			+ +(Math.round(WISP[5].altim_in_hg + "e+2") + "e-2") + "Hg" + " &nbsp &nbsp  "
-			+ time5;
-        top.appendChild(synopsis6);
-		 
-		 
-		var synopsis7 = document.createElement("div");
-        synopsis7.classList.add("xsmall", "bright", "synopsis7");
-        synopsis7.innerHTML = 
-						gBullet + " &nbsp "
-					   + WISP[6].station_id + " &nbsp &nbsp "
-					   + WISP[6].wind_dir_degrees + sym
-					   + WISP[6].wind_speed_kt + "KT" + " &nbsp "
-					 + convert6 // visibilty SM or KM (KM converted from SM data)
-					   + WISP[6].sky_condition[0]["$"].sky_cover
-					   + WISP[6].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
-			+ Math.round(WISP[6].temp_c) + "/"
-			+ Math.round(WISP[6].dewpoint_c) + " &nbsp "
-			+ +(Math.round(WISP[6].altim_in_hg + "e+2") + "e-2") + "Hg" + " &nbsp &nbsp  "
-			+ time6;
-        top.appendChild(synopsis7);
-		 
-		 
-		var synopsis8 = document.createElement("div");
-        synopsis8.classList.add("xsmall", "bright", "synopsis8");
-        synopsis8.innerHTML = 
-						hBullet + " &nbsp "
-					   + WISP[7].station_id + " &nbsp &nbsp "
-					   + WISP[7].wind_dir_degrees + sym
-					   + WISP[7].wind_speed_kt + "KT" + " &nbsp "
-					 + convert7 // visibilty SM or KM (KM converted from SM data)
-					   + WISP[7].sky_condition[0]["$"].sky_cover
-					   + WISP[7].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
-			+ Math.round(WISP[7].temp_c) + "/"
-			+ Math.round(WISP[7].dewpoint_c) + " &nbsp "
-			+ +(Math.round(WISP[7].altim_in_hg + "e+2") + "e-2") + "Hg" + " &nbsp &nbsp  "
-			+ time7;
-        top.appendChild(synopsis8);
-			
+			if (isEven (Pindex)) {
+				var Fcolor = Fcolor_even;
+			} else {
+				var Fcolor = Fcolor_odd;
+			}
+
+	        var synopsis = document.createElement("div");
+			    synopsis.classList.add("xsmall", "bright", "synopsis");
+		//	console.log(this.Wisp);
+				synopsis.innerHTML = 
+					aBullet + " &nbsp " + Fcolor
+					+ WISP[Pindex].station_id + " &nbsp &nbsp "
+					+ WISP[Pindex].wind_dir_degrees + sym
+					+ WISP[Pindex].wind_speed_kt + "KT" + " &nbsp "
+					+ convert0 // visibilty SM or KM (KM converted from SM data)
+					+ WISP[Pindex].sky_condition[0]["$"].sky_cover
+					+ WISP[Pindex].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
+					+ tempCurr + "/"
+					+ dewCurr + " &nbsp &nbsp  "
+					+ +(Math.round(WISP[Pindex].altim_in_hg + "e+2") + "e-2") + "Hg" + " &nbsp &nbsp  "
+					+ time0;
+		        top.appendChild(synopsis);
+				Pindex++;		 
+		}
+//end loop		 
 		wrapper.appendChild(top);
 		
 		} // closes else
