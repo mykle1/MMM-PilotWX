@@ -1,4 +1,4 @@
-/* Magic Mirror
+ /* Magic Mirror
   *
   * Module: MMM-PilotWX
   *
@@ -13,13 +13,14 @@ Module.register("MMM-PilotWX", {
 		ICAO: "KJFK,EGLL,UUDD,EDDT,RJAA,ZBAA,LFPG,LIRF",  // separated by comma only
 		colorCode: "Standard", // Standard or Alternative color coding
 		mode: "Static",        // Static or Rotating display
-		sym: "@",
+		sym: "@",			   // @ or / (Separator for Wind speed and direction)
 		measure: "KM",         // SM or KM (KM converted from SM data)
 		tempUnits: "C",		   // C or F (F converted from C)
 		time: "Zulu",          // Zulu or Local (observation time)
 		maxWidth: "100%",      // 100% for mode: Rotating, approx 300px for mode: Static
 		useHeader: false,
 		header: "",
+		useAltHeader: true,
 		rotateInterval: 15 * 1000, // seconds
 		updateInterval: 10 * 60 * 1000, // every 10 minutes
 		animationSpeed: 3000,
@@ -155,9 +156,9 @@ Module.register("MMM-PilotWX", {
 		} else{
 			var time = moment(WISP.observation_time, "YYYY-MM-DD HH:mm:ss Z").local().format("[(]HH:mm[)]");
 		}
-		
+
         var synopsis = document.createElement("div");
-        synopsis.classList.add("small", "bright", "bottom_bar");
+		synopsis.classList.add("small", "bright", "bottom_bar");
         synopsis.innerHTML =
 			bullet + " &nbsp "
 			+ WISP.station_id + " &nbsp &nbsp "
@@ -197,14 +198,19 @@ Module.register("MMM-PilotWX", {
         top.classList.add("list-row");
 		
 		var WISP = this.WISP;
-		//console.log (WISP)
-		//Station and conditions column headers
-		var station = document.createElement("div");
-			station.classList.add("small", "bright", "station");
-			station.innerHTML = "<u>Station</u> &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp <u>Conditions</u>";
-			top.appendChild(station);
-	
-		 
+//console.log (WISP)
+		//Station and conditions column headers if true in config useAltHeader
+		if (this.config.useAltHeader != false)	{
+			var station = document.createElement("div");
+				station.classList.add("small", "bright", "station");
+				station.innerHTML = "<u>Station</u> &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp <u>Conditions</u>";
+				top.appendChild(station);
+
+		}
+
+		var table = document.createElement("table");
+			table.className = "small";
+
 ///loop through all METAR items here		 
 		while (Pindex < Plength) {
 			// vars for color coding flight_category bullets
@@ -248,12 +254,6 @@ Module.register("MMM-PilotWX", {
 				WISP[Pindex].sky_condition[0]["$"].cloud_base_ft_agl = "";
 			}
 		
-		// For alignment because I can't do tables yet
-			if (WISP[Pindex].station_id == "LIRF"){
-				WISP[Pindex].station_id = "LIRF" + " &nbsp ";
-			}
-		
-	
 			var sym = this.config.sym;
 			var measure = this.config.measure;
 		
@@ -262,9 +262,9 @@ Module.register("MMM-PilotWX", {
 		// Rounded
 		
 			if (this.config.measure != "KM"){
-				var convert0 = Math.round(WISP[Pindex].visibility_statute_mi) + measure + " &nbsp ";
+				var convert0 = Math.round(WISP[Pindex].visibility_statute_mi) + measure;
 			} else {
-				var convert0 = Math.round(to_km(WISP[Pindex].visibility_statute_mi)) + measure + " &nbsp ";
+				var convert0 = Math.round(to_km(WISP[Pindex].visibility_statute_mi)) + measure;
 			}
 
 			if (this.config.tempUnits != "C" ){
@@ -287,29 +287,63 @@ Module.register("MMM-PilotWX", {
 		 // visibility in SM
 		 // sky condition
 		 // temp and dew point in C
+		 // observation time
+
 			if (isEven (Pindex)) {
-				var Fcolor = Fcolor_even;
+				var Fcolor = "dataeven";
 			} else {
-				var Fcolor = Fcolor_odd;
+				var Fcolor = "dataodd";
 			}
 
-	        var synopsis = document.createElement("div");
-			    synopsis.classList.add("xsmall", "bright", "synopsis");
-		//	console.log(this.Wisp);
-				synopsis.innerHTML = 
-					aBullet + " &nbsp " + Fcolor
-					+ WISP[Pindex].station_id + " &nbsp &nbsp "
-					+ WISP[Pindex].wind_dir_degrees + sym
-					+ WISP[Pindex].wind_speed_kt + "KT" + " &nbsp "
-					+ convert0 // visibilty SM or KM (KM converted from SM data)
-					+ WISP[Pindex].sky_condition[0]["$"].sky_cover
-					+ WISP[Pindex].sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp "
-					+ tempCurr + "/"
-					+ dewCurr + " &nbsp &nbsp  "
-					+ +(Math.round(WISP[Pindex].altim_in_hg + "e+2") + "e-2") + "Hg" + " &nbsp &nbsp  "
-					+ time0;
-		        top.appendChild(synopsis);
-				Pindex++;		 
+			var row = document.createElement("tr");
+			if (this.config.colored) {
+				row.className = "colored";
+			}
+			table.appendChild(row);
+
+			var bulletCell = document.createElement("td");
+			bulletCell.className = "xsmall bright bullet";
+			bulletCell.innerHTML = aBullet;
+			row.appendChild(bulletCell);
+
+			var staCell = document.createElement("td");
+			staCell.className = "xsmall bright " + Fcolor;
+			staCell.innerHTML = WISP[Pindex].station_id;
+			row.appendChild(staCell);
+
+			var windCell = document.createElement("td");
+			windCell.className = "xsmall bright " + Fcolor;
+			windCell.innerHTML = WISP[Pindex].wind_dir_degrees + sym + WISP[Pindex].wind_speed_kt + "KT";
+			row.appendChild(windCell);
+
+			var visCell = document.createElement("td");
+			visCell.className = "xsmall bright " + Fcolor;
+			visCell.innerHTML = convert0;
+			row.appendChild(visCell);
+
+			var skycovCell = document.createElement("td");
+			skycovCell.className = "xsmall bright " + Fcolor;
+			skycovCell.innerHTML = WISP[Pindex].sky_condition[0]["$"].sky_cover + WISP[Pindex].sky_condition[0]["$"].cloud_base_ft_agl;
+			row.appendChild(skycovCell);
+
+			var temperatureCell = document.createElement("td");
+			temperatureCell.className = "xsmall bright " + Fcolor;
+			temperatureCell.innerHTML = tempCurr + "/" + dewCurr;
+			row.appendChild(temperatureCell);
+
+			var altimCell = document.createElement("td");
+			altimCell.className = "xsmall bright " + Fcolor;
+			altimCell.innerHTML = +(Math.round(WISP[Pindex].altim_in_hg + "e+2") + "e-2") + "Hg";
+			row.appendChild(altimCell);
+
+			var timeCell = document.createElement("td");
+			timeCell.className = "xsmall bright " + Fcolor;
+			timeCell.innerHTML = time0;
+			row.appendChild(timeCell);
+
+	        top.appendChild(table);
+
+			Pindex++;		 
 		}
 //end loop		 
 		wrapper.appendChild(top);

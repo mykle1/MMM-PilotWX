@@ -11,39 +11,32 @@
 .MMM-PilotWX .bottom_bar {
   color: yellow;                /* Color line. Default is white. */
 }  
- 
+
+.MMM-PilotWX .bullet {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .MMM-PilotWX .station {
   color: white;                /* Station/Conditions color. Default is white. */
+  padding-left: 0;
+  padding-right: 25px;
 } 
- 
-.MMM-PilotWX .synopsis {
-  color: white;                /* Color each line. Default is white. */
-}  
- 
-.MMM-PilotWX .synopsis2 {
-  color: #33FFEE;              /* Color each line. Default is white. */                 
+
+.MMM-PilotWX .dataodd {
+  color: #33FFEE;                /* Station/Conditions color. Default is white. */
+  padding-left: 10px;
+  padding-right: 0;
 }
 
-.MMM-PilotWX .synopsis3 {
-  color: white;                /* Color each line. Default is white. */              
+.MMM-PilotWX .dataeven {
+  color: white;                /* Station/Conditions color. Default is white. */
+  padding-left: 10px;
+  padding-right: 0;
 }
 
-.MMM-PilotWX .synopsis4 {
-  color: #33FFEE;                /* Color each line. Default is white. */               
-}
-
-.MMM-PilotWX .synopsis5 {
-  color: white;                /* Color each line. Default is white. */               
-}
-
-.MMM-PilotWX .synopsis6 {
-  color: #33FFEE;                /* Color each line. Default is white. */               
-}
-
-.MMM-PilotWX .synopsis7 {
-  color: white;                /* Color each line. Default is white. */
-}
-
-.MMM-PilotWX .synopsis8 {
-  color: #33FFEE;                /* Color each line. Default is white.  */
+.MMM-PilotWX .data {
+  color: white;                /* Station/Conditions color. Default is white. */
+  padding-left: 10px;
+  padding-right: 0;
 }
