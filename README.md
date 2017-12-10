@@ -1,8 +1,8 @@
-# MMM-PilotWX
+﻿# MMM-PilotWX
 
 ## Weather conditions for International Airports
 
-* Monitor 8 ICAO's in static or rotating display
+* Monitor a variable number of ICAO's in static or rotating display
 
 * Designed to be usable in all regions
 
@@ -34,13 +34,15 @@ Color any way you like. Make it your own.
 		module: "MMM-PilotWX",
 		position: "top_left",         // for mode: "Static",  bottom_bar for mode: "Rotating",
 		config: {
-			ICAO: "KJFK,EGLL,UUDD,EDDT,RJAA,ZBAA,LFPG,LIRF", // 8 INTL ICAO's
+			ICAO: "KJFK,EGLL,UUDD,EDDT,RJAA,ZBAA,LFPG,LIRF", // list of INTL ICAO's
 			colorCode: "Alternative", // Standard or Alternative
 			mode: "Static",           // Static (List) or Rotating (one by one)
 			sym: "@",                 // @ or / (Separator for Wind speed and direction)
+			tempUnits: "C",		   // C or F (F converted from C)
 			measure: "SM",            // SM or KM (KM converted from SM data)
 			time: "Local",            // Zulu or Local (observation time)
 			maxWidth: "100%",         // 100% for mode: Rotating, approx 300px for mode: Static
+			useAltHeader: true,	  // Use alternative header
 			useHeader: false,
 			header: "",
 		}
