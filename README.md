@@ -14,7 +14,7 @@
 
 * Static config option
 
-![](images/1.PNG)
+![](images/3.PNG) ![](images/1.PNG)
 
 * Rotating config option for bottom_bar or top_bar. You could also try the thirds.
 
