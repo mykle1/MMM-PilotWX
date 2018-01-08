@@ -358,6 +358,20 @@ Module.register("MMM-PilotWX", {
 //	roundToTwo: function(num) {    
 //    return +(Math.round(num + "e+2")  + "e-2");
 //	},
+  
+  
+  /////  Add this function to the modules you want to control with voice //////
+
+    notificationReceived: function(notification, payload) {
+        if (notification === 'HIDE_PILOTS') {
+            this.hide(1000);
+            this.updateDom(300);
+        }  else if (notification === 'SHOW_PILOTS') {
+            this.show(1000);
+            this.updateDom(300);
+        }
+            
+    },
 
 
 	processWISP: function(data) { 
