@@ -20,6 +20,7 @@ Module.register("MMM-PilotWX", {
 		maxWidth: "100%",      // 100% for mode: Rotating, approx 300px for mode: Static
 		useHeader: false,
 		header: "",
+	    	mostRecentPerStation: true,
 		useAltHeader: true,
 		rotateInterval: 15 * 1000, // seconds
 		updateInterval: 10 * 60 * 1000, // every 10 minutes
@@ -40,8 +41,10 @@ Module.register("MMM-PilotWX", {
 
         // Set locale.
         this.url = "https://aviationweather.gov/adds/dataserver_current/httpparam?dataSource=metars&requestType=retrieve&format=xml&stationString=" + this.config.ICAO + "&hoursBeforeNow=1",
-		this.WISP = [];
-		this.activeItem = 0;
+	this.url = this.url + "&mostRecentForEachStation=" + this.config.mostRecentPerStation;
+	console.log("URL: " + this.url);
+	this.WISP = [];
+	this.activeItem = 0;
         this.rotateInterval = null;
         this.scheduleUpdate();
     },
@@ -56,6 +59,26 @@ Module.register("MMM-PilotWX", {
 		function to_km (d) {
 		 	return d * 1.609344;              // convert SM to Kilometer
 		 }
+
+	    	function winds (dir,speed){
+			var winddir = "unavailable";
+			var windspeed = "unavailable";
+			
+			if(dir !== undefined){
+				dirs = dir + "";
+				while(dirs.length < 3) dirs = "0" + dirs;
+				winddir = dirs;
+			}
+			if(speed !== undefined){
+				windspeed = speed + "KT";
+			}
+			var winds = "unavailable";
+			if(winddir !== "unavailable" || windspeed !== "unavailable"){
+				winds = winddir + sym + windspeed;
+			}
+			return winds
+
+		}
 		
         var wrapper = document.createElement("div");
         wrapper.className = "wrapper";
@@ -95,7 +118,7 @@ Module.register("MMM-PilotWX", {
 
 
 		// start config opton for color coding flight category/rules bullet
-		if (this.config.colorCode != "Standard"){
+	if (this.config.colorCode != "Standard"){
 		// Alternative color coding flight category/rules bullet
 		if (WISP.flight_category == "VFR"){
 			var bullet = '<font color = green> &#x29BF </font>';
@@ -159,11 +182,11 @@ Module.register("MMM-PilotWX", {
 
         var synopsis = document.createElement("div");
 		synopsis.classList.add("small", "bright", "bottom_bar");
+
         synopsis.innerHTML =
 			bullet + " &nbsp "
 			+ WISP.station_id + " &nbsp &nbsp "
-			+ WISP.wind_dir_degrees + sym
-			+ WISP.wind_speed_kt + "KT" + " &nbsp  &nbsp "
+			+ winds(WISP.wind_dir_degrees,WISP.wind_speed_kt) + " &nbsp  &nbsp "
 			+ convert // var for KM or SM //
 			+ WISP.sky_condition[0]["$"].sky_cover
 			+ WISP.sky_condition[0]["$"].cloud_base_ft_agl + " &nbsp &nbsp "
@@ -183,8 +206,9 @@ Module.register("MMM-PilotWX", {
 		
         ////////////////// ELSE - the Static data (Below) //////////////
 		
-		} else {
-	
+	} else {
+		
+
 		var Plength = Object.keys(this.WISP).length;
 		var Pindex = 0;
 		var Fcolor_even = "<font color = white>";
@@ -198,7 +222,9 @@ Module.register("MMM-PilotWX", {
         top.classList.add("list-row");
 		
 		var WISP = this.WISP;
-//console.log (WISP)
+
+		//console.log (WISP)
+		
 		//Station and conditions column headers if true in config useAltHeader
 		if (this.config.useAltHeader != false)	{
 			var station = document.createElement("div");
@@ -309,11 +335,12 @@ Module.register("MMM-PilotWX", {
 			var staCell = document.createElement("td");
 			staCell.className = "xsmall bright " + Fcolor;
 			staCell.innerHTML = WISP[Pindex].station_id;
+			console.log("Creating row for " + WISP[Pindex].station_id);
 			row.appendChild(staCell);
 
 			var windCell = document.createElement("td");
 			windCell.className = "xsmall bright " + Fcolor;
-			windCell.innerHTML = WISP[Pindex].wind_dir_degrees + sym + WISP[Pindex].wind_speed_kt + "KT";
+			windCell.innerHTML = winds(WISP[Pindex].wind_dir_degrees,WISP[Pindex].wind_speed_kt);
 			row.appendChild(windCell);
 
 			var visCell = document.createElement("td");
@@ -376,7 +403,7 @@ Module.register("MMM-PilotWX", {
 
 	processWISP: function(data) { 
 		this.WISP = data[0].METAR;  // take this down to just before what I really need
-	//	console.log(this.WISP); // for checking 
+		console.log(this.WISP); // for checking 
 		this.loaded = true;
 	},
 	 
