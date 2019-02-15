@@ -37,6 +37,7 @@ Color any way you like. Make it your own.
 			ICAO: "KJFK,EGLL,UUDD,EDDT,RJAA,ZBAA,LFPG,LIRF", // list of INTL ICAO's
 			colorCode: "Alternative", // Standard or Alternative
 			mode: "Static",           // Static (List) or Rotating (one by one)
+			mostRecentPerStation: true,	//limits observations to 1 per station
 			sym: "@",                 // @ or / (Separator for Wind speed and direction)
 			tempUnits: "C",		   // C or F (F converted from C)
 			measure: "SM",            // SM or KM (KM converted from SM data)
