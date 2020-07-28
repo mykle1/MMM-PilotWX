@@ -40,6 +40,7 @@ Color any way you like. Make it your own.
 			mostRecentPerStation: true,	//limits observations to 1 per station
 			sym: "@",                 // @ or / (Separator for Wind speed and direction)
 			tempUnits: "C",		   // C or F (F converted from C)
+			pressureUnits: "Hg",   // Hg or Mb (Mb converted from Hg)
 			measure: "SM",            // SM or KM (KM converted from SM data)
 			time: "Local",            // Zulu or Local (observation time)
 			maxWidth: "100%",         // 100% for mode: Rotating, approx 300px for mode: Static
